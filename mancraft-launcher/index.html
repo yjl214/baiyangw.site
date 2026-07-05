@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Man! Craft Launcher</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <style>
+        /* 启动页面按钮文字黑色（未触发） */
+        .btn-game-start {
+            color: #222 !important;
+        }
+        .btn-game-start .title,
+        .btn-game-start .description {
+            color: #222 !important;
+            text-shadow: none !important;
+            transition: color 0.2s;
+        }
+        .btn-game-start:hover .title,
+        .btn-game-start:hover .description {
+            color: #fff !important;
+        }
+        .btn-game-start:hover {
+            color: #fff !important;
+        }
+        /* 更多页面链接颜色恢复默认并增加黑色阴影 */
+        .page-more a {
+            color: #40a9ff !important;
+            text-shadow: 1px 1px 4px #000 !important;
+        }
+        /* 设置页所有选择框黑色风格 */
+        #config-language,
+        #config-js,
+        #config-process-priority,
+        #config-launcher-visibility,
+        #config-game-memory,
+        #config-game-skin {
+            background: #222;
+            color: #fff !important;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            text-align: center;
+        }
+        #config-language:focus,
+        #config-js:focus,
+        #config-process-priority:focus,
+        #config-launcher-visibility:focus,
+        #config-game-memory:focus,
+        #config-game-skin:focus {
+            outline: 2px solid #fff;
+            border-color: #fff;
+        }
+        /* 游戏窗口尺寸输入框黑色风格 */
+        #config-window-width,
+        #config-window-height {
+            background: #222;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            text-align: center;
+        }
+        #config-window-width:focus,
+        #config-window-height:focus {
+            outline: 2px solid #fff;
+            border-color: #fff;
+        }
+        /* 选择框中的文字为黑色，优先级最高，但下拉选项为白色 */
+        .tabpage-panel select, .tabpage-panel select * {
+            color: #222 !important;
+            text-shadow: none !important;
+        }
+        /* 下拉选项文字白色，兼容主流浏览器 */
+        .tabpage-panel select option,
+        select option {
+            color: #fff !important;
+            background: #222 !important;
+        }
+        /* 标签页内容区文字白色 */
+        .tabpage-panel,
+        .tabpage-panel * {
+            color: #fff !important;
+            text-shadow: 1px 1px 4px #000;
+        }
+        /* 标签页内容区控件居中 */
+        .page-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .mcl-form-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 18px;
+            width: 100%;
+        }
+        .mcl-form-item label {
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        .config-window-size {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        select, input[type="number"] {
+            text-align: center;
+        }
+        .btn-game-start {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        body {
+            background: url("../bg.png") no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+        }
+        .text {
+            color: #fff;
+            text-shadow: 1px 1px 4px #000;
+        }
+        button {
+            background: #fff;
+            color: #222;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.2s, color 0.2s;
+        }
+        button:hover {
+            background: #111;
+            color: #fff;
+        }
+        /* 标签页导航居中和美化 */
+        .tabpage-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255,255,255,0.10);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            margin: 0 auto 24px auto;
+            padding: 12px 0;
+            max-width: 640px;
+        }
+        .tabpage-nav-item {
+            background: transparent;
+            color: #fff;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            margin: 0 4px;
+            box-shadow: none;
+            border: 2px solid transparent;
+            transition: background 0.2s, color 0.2s, border 0.2s;
+        }
+        .tabpage-nav-item[aria-selected="true"] {
+            background: rgba(255,255,255,0.18);
+            color: #222;
+            border-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        }
+        .tabpage-nav-item:hover {
+            background: rgba(255,255,255,0.22);
+            color: #222;
+        }
+        /* 标签页内容居中和美化 */
+        .tabpage-centent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 0 auto;
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255,255,255,0.10);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            padding: 32px 24px 24px 24px;
+        }
+        .tabpage-panel {
+            width: 100%;
+            margin: 0 auto;
+        }
+        .tabpage-panel-title {
+            text-align: center;
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 18px;
+            text-shadow: 1px 1px 6px #000;
+        }
+        @media (max-width: 800px) {
+            .tabpage-nav, .tabpage-centent {
+                max-width: 98vw;
+                padding: 8px 2vw;
+            }
+            .tabpage-panel-title {
+                font-size: 1.2rem;
+            }
+        }
+        /* 隐藏标签页内容 */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+    <script src="lib/jquery-3.7.1.min.js"></script>
+    <script src="res/class/LocalStorageManager.js"></script>
+    <script src="res/class/EchoLiveSystem.js"></script>
+    <script src="res/data/root.js"></script>
+    <script src="lang/index.js"></script>
+    <script src="res/class/Translator.js"></script>
+    <script id="translator-init">
+        const localStorageManager = new LocalStorageManager();
+
+        if (localStorageManager.getItem('config') === undefined) {
+            localStorageManager.setItem('config', {
+                language: 'zho-Hans',
+                window_width: 1280,
+                window_height: 720
+            });
+        }
+
+        const translator = new Translator(localStorageManager.getItem('config').language || 'zho-Hans');
+        const $t = function(...e) {
+            return translator.output(...e);
+        };
+        const $tc = function(...e) {
+            return translator.outputByTextComponent(...e);
+        };
+        translator.init();
+    </script>
+    <script src="res/data/icon.js"></script>
+    <script src="res/class/Icon.js"></script>
+    <script src="res/class/Game.js"></script>
+    <script src="res/script/component.js"></script>
+</head>
+<body>
+    <div class="page-root">
+        <header style="flex:0 0 auto;">
+            <h1 class="text" data-i18n="header.title" style="cursor:pointer;text-align:center;margin-top:32px;">Man! Craft Launcher</h1>
+            <div class="description text" style="text-align:center;margin-bottom:12px;">一款假得不能再假的 Minecraft 启动器</div>
+        </header>
+        <main>
+            <!-- 返回主页按钮 -->
+            <div style="text-align:center;margin-bottom:16px;flex:0 0 auto;">
+                <button class="main-btn" onclick="window.location.href='../'">返回主页</button>
+            </div>
+            <!-- 标签页标题 -->
+            <nav id="launcher-nav" class="tabpage-nav" data-navid="main" style="flex:0 0 auto;">
+            <button
+                class="tabpage-nav-item"
+                data-pageid="index"
+                role="tab"
+                aria-selected="true"
+                accesskey="1"
+                data-i18n-title="nav.index.description"
+            >
+                <span class="tabpage-nav-icon" data-icon="material:power-standby"></span>
+                <span class="tabpage-nav-label" data-i18n="nav.index.title">启动</span>
+            </button>
+            <button
+                class="tabpage-nav-item"
+                data-pageid="download"
+                role="tab"
+                aria-selected="false"
+                accesskey="2"
+                data-i18n-title="nav.download.description"
+            >
+                <span class="tabpage-nav-icon" data-icon="material:download-outline"></span>
+                <span class="tabpage-nav-label" data-i18n="nav.download.title">下载</span>
+            </button>
+            <button
+                class="tabpage-nav-item"
+                data-pageid="settings"
+                role="tab"
+                aria-selected="false"
+                accesskey="3"
+                data-i18n-title="nav.settings.description"
+            >
+                <span class="tabpage-nav-icon" data-icon="material:cog-outline"></span>
+                <span class="tabpage-nav-label" data-i18n="nav.settings.title">设置</span>
+            </button>
+            <button
+                class="tabpage-nav-item"
+                data-pageid="more"
+                role="tab"
+                aria-selected="false"
+                accesskey="4"
+                data-i18n-title="nav.more.description"
+            >
+                <span class="tabpage-nav-icon" data-icon="material:view-grid-outline"></span>
+                <span class="tabpage-nav-label" data-i18n="nav.more.title">更多</span>
+            </button>
+        </nav>
+
+        <!-- 标签页面板 -->
+        <div class="tabpage-centent" data-navid="main">
+            <!-- 启动标签页 -->
+            <section class="tabpage-panel" role="tabpanel" data-pageid="index">
+                <h2 class="tabpage-panel-title" data-i18n="nav.index.title">启动</h2>
+
+                <div class="page-container page-index">
+                    <div class="game-start-page-description text-regular w-full text-center" data-i18n="index.description">只需一步，立即开始</div>
+
+                    <button id="game-start" class="mcl-button btn-game-start">
+                        <span class="title" data-i18n="index.game_start">启动游戏</span>
+                        <span class="description">Classic 0.0.23a_01</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 下载标签页 -->
+            <section class="tabpage-panel hidden" role="tabpanel" data-pageid="download">
+                <h2 class="tabpage-panel-title" data-i18n="nav.download.title">下载</h2>
+
+                <div class="page-container page-download">
+                    <div class="text-regular w-full text-center" data-i18n="download.description_1"></div>
+                    <div class="text-regular w-full text-center" data-i18n="download.description_2"></div>
+                    <div class="text-regular w-full text-center" data-i18n="download.description_3"></div>
+                </div>
+            </section>
+
+            <!-- 设置标签页 -->
+            <section class="tabpage-panel hidden" role="tabpanel" data-pageid="settings">
+                <h2 class="tabpage-panel-title" data-i18n="nav.settings.title">设置</h2>
+
+                <div class="page-container page-settings">
+                    <div class="text-regular w-full text-center" data-i18n="settings.description"></div>
+
+                    <div class="mcl-form-item">
+                        <label for="config-language" data-i18n="settings.language"></label>
+                        <select id="config-language" name="language"></select>
+                    </div>
+
+                    <div class="mcl-form-item">
+                        <label for="config-window-width" data-i18n="settings.game_window_size"></label>
+                        <div class="config-window-size text-regular">
+                            <input type="number" name="window_width" id="config-window-width" min="100" value="1280"> × 
+                            <input type="number" name="window_height" id="config-window-height" min="100" value="720">
+                        </div>
+                    </div>
+
+                    <div class="mcl-form-item">
+                        <label for="config-js" data-i18n="settings.game_javascript"></label>
+                        <select id="config-js">
+                            <option value="es6">ECMAScript 6</option>
+                        </select>
+                    </div>
+
+                    <div class="mcl-form-item">
+                        <label for="config-process-priority" data-i18n="settings.process_priority.title"></label>
+                        <select id="config-process-priority">
+                            <option value="auto" data-i18n="settings.process_priority.option.auto"></option>
+                            <option value="auto1" data-i18n="settings.process_priority.option.auto1"></option>
+                            <option value="auto2" data-i18n="settings.process_priority.option.auto2"></option>
+                            <option value="auto3" data-i18n="settings.process_priority.option.auto3"></option>
+                        </select>
+                    </div>
+
+                    <div class="mcl-form-item">
+                        <label for="config-launcher-visibility" data-i18n="settings.launcher_visibility.title"></label>
+                        <select id="config-launcher-visibility">
+                            <option value="auto" data-i18n="settings.launcher_visibility.option.auto"></option>
+                            <option value="auto1" data-i18n="settings.launcher_visibility.option.auto1"></option>
+                            <option value="auto2" data-i18n="settings.launcher_visibility.option.auto2"></option>
+                            <option value="auto3" data-i18n="settings.launcher_visibility.option.auto3"></option>
+                        </select>
+                    </div>
+
+                    <div class="mcl-form-item">
+                        <label for="config-game-memory" data-i18n="settings.game_memory.title"></label>
+                        <select id="config-game-memory">
+                            <option value="auto" data-i18n="settings.game_memory.option.auto"></option>
+                            <option value="auto1" data-i18n="settings.game_memory.option.auto1"></option>
+                            <option value="auto2" data-i18n="settings.game_memory.option.auto2"></option>
+                            <option value="auto3" data-i18n="settings.game_memory.option.auto3"></option>
+                        </select>
+                    </div>
+
+                    <div class="mcl-form-item">
+                        <label for="config-game-skin" data-i18n="settings.game_skin.title"></label>
+                        <select id="config-game-skin">
+                            <option value="steve" data-i18n="settings.game_skin.option.steve"></option>
+                            <option value="steve2" data-i18n="settings.game_skin.option.steve2"></option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 更多标签页 -->
+            <section class="tabpage-panel hidden" role="tabpanel" data-pageid="more">
+                <h2 class="tabpage-panel-title" data-i18n="nav.more.title">更多</h2>
+
+                <div class="page-container page-more">
+                    <h3 data-i18n="more.about.title">关于 Man! Craft Launcher</h3>
+
+                    <div class="text-regular w-full">
+                        <br>
+                        <div data-i18n="more.about.description_1">本启动器出于玩笑而创作，仅供娱乐，内容纯属虚构。</div>
+                        <br>
+                        <div>版权所有 © <a href="https://github.com/sheep-realms" target="_blank">Sheep-realms</a> 和 <a href="https://github.com/sheep-realms/ManCraft-Launcher" target="_blank">GitHub 项目 sheep-realms/ManCraft-Launcher 上的贡献者们</a>。</div>
+                        <br>
+                        <div>Man! Craft Launcher 是自由软件，您可以依据自由软件基金会发行的 <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL（GNU General Public License，GNU通用公共许可协议）第3版</a> 或任意后续版本的条款，传播和/或修改本软件。您传播和/或修改本软件即视为您已阅读 GPL 协议并无条件同意。</div>
+                        <br>
+                        <div>Man! Craft Launcher 发表时预期有用，但对此无任何保证；亦无隐含的可以销售或适合特定目的的保证。详情请见 GNU 公众授权协议。</div>
+                        <br>
+                        <div>Man! Craft Launcher 包含有其他开源组件，这些开源组件及其授权协议将在下文列出。</div>
+                        <br>
+                        <div>Man! Craft Launcher 包含有并非以 GNU 公众授权协议共享的美术资源，这些资源的版权信息将在下文列出。</div>
+                        <br>
+                        <br>
+                    </div>
+
+                    <h3 data-i18n="more.open_source.title">开源组件</h3>
+
+                    <div class="text-regular w-full">
+                        <br>
+                        <ul>
+                            <li><a href="https://github.com/sheep-realms/Echo-Live" target="_blank">Echo-Live</a>: <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GPL-3.0 License</a></li>
+                            <li><a href="https://github.com/jquery/jquery" target="_blank">jquery</a>: <a href="https://opensource.org/license/mit" target="_blank">MIT License</a></li>
+                        </ul>
+                        <br>
+                        <br>
+                    </div>
+
+                    <h3 data-i18n="more.art_source.title">美术资源</h3>
+
+                    <div class="text-regular w-full">
+                        <br>
+                        <ul>
+                            <li><a href="https://pictogrammers.com/library/mdi/" target="_blank">Material Design Icons</a>: <a href="https://apache.org/licenses/LICENSE-2.0" target="_blank">Apache License 2.0</a></li>
+                        </ul>
+                        <br>
+                        <br>
+                    </div>
+
+                    <h3 data-i18n="more.friendship_link.title">友情链接</h3>
+                    <br>
+                    <div>
+                        <a href="https://www.minecraft.net/" target="_blank">Minecraft 官网</a> · 
+                        <a href="https://zh.minecraft.wiki/" target="_blank">Minecraft Wiki</a> · 
+                        <a href="https://www.mczwlt.net/" target="_blank">红石中继站</a> · 
+                        <a href="https://www.mcbbs.co/" target="_blank">MCBBS 纪念版</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="text" style="text-align:center;" data-i18n="footer.description">本启动器只是一个玩笑，它也许并不能为您提供所需要的服务</div>
+    </footer>
+    
+    <script src="res/script/i18n.js" defer></script>
+    <script>
+        Icon.loadPageIcon();
+    </script>
+    <script src="res/script/common.js"></script>
+</main>
+
+<script>
+// 标签页切换功能
+$(function() {
+    $('#launcher-nav .tabpage-nav-item').on('click', function() {
+        // 切换选中状态
+        $('#launcher-nav .tabpage-nav-item').attr('aria-selected', 'false');
+        $(this).attr('aria-selected', 'true');
+        // 获取目标pageid
+        var pageid = $(this).data('pageid');
+        // 切换内容区显示
+        $('.tabpage-panel').addClass('hidden');
+        $('.tabpage-panel[data-pageid="' + pageid + '"]').removeClass('hidden');
+    });
+});
+</script>
+</body>
+</html>
