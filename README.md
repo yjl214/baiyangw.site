@@ -14,7 +14,7 @@ thanks:@sheep-realms/ManCraft-Launcher
 
 
 
->[!IMPORTANT]
+> [!IMPORTANT]
 
->this site is NOT recommended to use, it is only my backup
+> This site is NOT recommended to use, it is only my backup
 
