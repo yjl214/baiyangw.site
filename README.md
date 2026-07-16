@@ -7,5 +7,5 @@ go: [baiyangw.qzz.io](baiyangw.qzz.io) or [baiyangw.pages.dev](baiyangw.pages.de
 thanks:[@sheep-realms/ManCraft-Launcher](GitHub.com/sheep-realms/ManCraft-Launcher)
 
 > [!IMPORTANT]
-> This site is NOT recommended to use, it is only my backup
+> This site is NOT recommended to use as yours, it is only my backup
 
